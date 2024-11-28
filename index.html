@@ -201,16 +201,18 @@
         }
 
         function update() {
-            if (Phaser.Input.Keyboard.JustDown(pauseKey)) {
+            if (Phaser.Input.Keyboard.JustDown(pauseKey) && !gameOverText.visible) {
                 isPaused = !isPaused;
                 if (isPaused) {
                     this.physics.pause();
                     pauseText.setVisible(true);
                     trashTimers.forEach(timer => timer.paused = true);
+                    this.time.paused = true; // Pausar el tiempo
                 } else {
                     this.physics.resume();
                     pauseText.setVisible(false);
                     trashTimers.forEach(timer => timer.paused = false);
+                    this.time.paused = false; // Reanudar el tiempo
                 }
             }
 
@@ -295,13 +297,13 @@
         }
 
         function checkTrashPenalty() {
-            const trashCount = trashGroup.countActive(true);
-            if (trashCount > 10 && trashCount < 20 && trashCount > lastTrashCount) {
-                score -= 10;
-                scoreText.setText('Puntos: ' + score);
-            }
-            lastTrashCount = trashCount;
+        const trashCount = trashGroup.countActive(true);
+        if (trashCount > 10 && trashCount < 20 && trashCount > lastTrashCount) {
+            score = Math.max(0, score - 10); // Asegurarse de que el puntaje no sea menor a 0
+            scoreText.setText('Puntos: ' + score);
         }
+        lastTrashCount = trashCount;
+    }
 
         function updateTimer() {
             if (timeLimit > 0) {
@@ -319,6 +321,7 @@
             trashTimers.forEach(timer => timer.paused = true);
             gameOverText.setText('Juego terminado! Puntaje final: ' + score);
             gameOverText.setVisible(true);
+            isPaused = true; // Asegurarse de que el juego esté pausado
         }
     </script>
 </body>
