@@ -62,7 +62,14 @@
         let timeLimit = 120; // 2 minutes in seconds
 
         function preload() {
-            // No assets to load for now
+            this.load.image('trashBin', 'assets/Basurero.png');
+            this.load.image('bench', 'assets/bench.png');
+            this.load.image('kiosk', 'assets/kiosk.png');
+            this.load.image('plant', 'assets/plant.png');
+            this.load.image('playerLeft', 'assets/player/Adam_idle_left.png');
+            this.load.image('playerRight', 'assets/player/Adam_idle_rigth.png');
+            this.load.image('playerUp', 'assets/player/Adam_idle_up.png');
+            this.load.image('playerDown', 'assets/player/Adam_idle_down.png');
         }
 
         function create() {
@@ -86,8 +93,10 @@
             graphics.destroy(); // Eliminar el gráfico después de generar las texturas
 
             // Create player
-            player = this.physics.add.sprite(400, 300, 'playerTexture');
+            player = this.physics.add.sprite(400, 300, 'playerDown');
             player.setCollideWorldBounds(true);
+            player.setDisplaySize(40, 50); // Ajustar el tamaño del sprite del jugador
+
 
             // Create NPCs
             for (let i = 0; i < 6; i++) {
@@ -104,20 +113,22 @@
                 });
                 trashTimers.push(timer);
             }
-
-            // Create mall objects
-            createMallObject(this, 200, 150, 100, 50, 0x00ff00); // Bench
-            createMallObject(this, 400, 150, 50, 50, 0xff0000); // Plant
-            createMallObject(this, 600, 150, 100, 50, 0x00ff00); // Bench
-            createMallObject(this, 200, 400, 100, 50, 0xff0000); // Kiosk
-            createMallObject(this, 400, 400, 50, 50, 0x00ff00); // Plant
-            createMallObject(this, 600, 400, 100, 50, 0xff0000); // Kiosk
-
+            
             // Create trash bin
-            trashBin = this.add.rectangle(50, 50, 50, 50, 0x808080);
-            this.physics.add.existing(trashBin, true);
-            this.physics.add.collider(player, trashBin, emptyInventory, null, this);
-            npcs.forEach(npc => this.physics.add.collider(npc, trashBin));
+            trashBin = this.physics.add.sprite(50, 50, 'trashBin');
+                trashBin.setDisplaySize(120, 90); // Ajustar el tamaño del sprite
+                trashBin.setCircle(220);
+                trashBin.setImmovable(true);
+                this.physics.add.collider(player, trashBin, emptyInventory, null, this);
+                npcs.forEach(npc => this.physics.add.collider(npc, trashBin));
+
+                // Create mall objects
+                createMallObject(this, 200, 150, 'bench', 100, 50); // Bench
+                createMallObject(this, 400, 150, 'plant', 50, 70); // plant
+                createMallObject(this, 600, 150, 'bench', 100, 50); // Kiosk
+                createMallObject(this, 200, 400, 'plant', 50, 70); // Plant
+                createMallObject(this, 400, 400, 'kiosk', 100, 50); // Kiosk
+                createMallObject(this, 600, 400, 'plant', 50, 70); // Plant
 
             // Create world bounds
             this.physics.world.setBounds(0, 0, 800, 600);
@@ -194,9 +205,10 @@
             });
         }
 
-        function createMallObject(scene, x, y, width, height, color) {
-            const obj = scene.add.rectangle(x, y, width, height, color);
-            scene.physics.add.existing(obj, true);
+        function createMallObject(scene, x, y, key, width, height) {
+            const obj = scene.physics.add.sprite(x, y, key);
+            obj.setDisplaySize(width, height); // Ajustar el tamaño del sprite
+            obj.setImmovable(true);
             mallObjects.push(obj);
         }
 
@@ -221,14 +233,18 @@
 
                 if (cursors.left.isDown) {
                     player.setVelocityX(-200);
+                    player.setTexture('playerLeft');
                 } else if (cursors.right.isDown) {
                     player.setVelocityX(200);
+                    player.setTexture('playerRight');
                 }
 
                 if (cursors.up.isDown) {
                     player.setVelocityY(-200);
+                    player.setTexture('playerUp');
                 } else if (cursors.down.isDown) {
                     player.setVelocityY(200);
+                    player.setTexture('playerDown');
                 }
 
                 // Apply separation behavior to NPCs
